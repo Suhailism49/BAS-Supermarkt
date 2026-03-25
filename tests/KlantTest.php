@@ -26,6 +26,17 @@ class KlantTest extends TestCase{
 		$klant = $this->klant->getKlant($klantId);
 		$this->assertEquals($klantId, $klant['klantId']);
 	}
+
+	public function testInsert(){
+		$result = $this->klant->insert(
+			"Test",
+			"Gebruiker",
+			"test@email.nl",
+			"0612345678"
+		);
+
+		$this->assertTrue($result);
+	}
 	
 }
 	

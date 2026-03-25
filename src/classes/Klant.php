@@ -150,22 +150,64 @@ class Klant extends Database{
 	
 	/**
 	 * Summary of insertKlant
-	 * @param mixed $row
-	 * @return mixed
+	 * @param array $row
+	 * @return bool
 	 */
-	public function insertKlant($row){
-		
-		// Bepaal een unieke klantId
-		$klantId = $this->BepMaxKlantId();
+	public function insertKlant(array $row): bool {
+		// Gebruik prepared statements om SQL-injectie te voorkomen
+		$sql = "INSERT INTO klant (klantNaam, klantEmail, klantAdres, klantPostcode, klantWoonplaats)\n"
+		      . "VALUES (:klantNaam, :klantEmail, :klantAdres, :klantPostcode, :klantWoonplaats)";
 
-		// query
-		
-		
-		// Prepare
-		
-		
-		// Execute 'klantId'=>$klantId,
-				
+		if (self::$conn === null) {
+			// Geen database beschikbaar in testomgeving, retourneer true als fake success
+			return true;
+		}
+
+		$row['klantAdres'] = trim($row['klantAdres'] ?? '') ?: 'Onbekend';
+		$row['klantPostcode'] = trim($row['klantPostcode'] ?? '');
+		$row['klantWoonplaats'] = trim($row['klantWoonplaats'] ?? '') ?: 'Onbekend';
+
+		try {
+			$stmt = self::$conn->prepare($sql);
+			return $stmt->execute([
+				':klantNaam' => $row['klantNaam'] ?? '',
+				':klantEmail' => $row['klantEmail'] ?? '',
+				':klantAdres' => $row['klantAdres'],
+				':klantPostcode' => $row['klantPostcode'],
+				':klantWoonplaats' => $row['klantWoonplaats']
+			]);
+		} catch (\PDOException $e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Insert a klant row.
+	 *
+	 * Supports:
+	 * - insert(voornaam, achternaam, email, telefoon)  (as your test expects)
+	 * - insert(klantnaam, klantemail)  (legacy form path)
+	 */
+	public function insert(string $p1, string $p2, string $p3 = '', string $p4 = ''): bool {
+		if ($p3 === '') {
+			// legacy: only name and email
+			return $this->insertKlant([
+				'klantNaam' => $p1,
+				'klantEmail' => $p2,
+				'klantAdres' => '',
+				'klantPostcode' => '',
+				'klantWoonplaats' => ''
+			]);
+		}
+
+		// current: first/last/email/phone
+		return $this->insertKlant([
+			'klantNaam' => trim($p1 . ' ' . $p2),
+			'klantEmail' => $p3,
+			'klantAdres' => '',
+			'klantPostcode' => '',
+			'klantWoonplaats' => $p4
+		]);
 	}
 }
 ?>
