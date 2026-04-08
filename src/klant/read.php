@@ -15,7 +15,8 @@
 	<h1>CRUD Klant</h1>
 	<nav>
 		<a href='../index.html'>Home</a><br>
-		<a href='insert.php'>Toevoegen nieuwe klant</a><br><br>
+		<a href='insert.php'>Toevoegen nieuwe klant</a><br>
+		<a href='search.php'>Zoeken klant</a><br><br>
 	</nav>
 	
 <?php
